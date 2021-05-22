@@ -5,6 +5,7 @@ HEADER = 64
 PORT = 10000
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
+CALCULATE_MESSAGE = "c"
 SERVER = "localhost"
 ADDR = (SERVER, PORT)
 
@@ -29,13 +30,21 @@ gradecounter = 1
 
 
 while gradecounter<31:
-    print("Enter unit " + str(gradecounter) +" score:")
+    print("Enter unit " + str(gradecounter) +" score: (or press 'c' to cancel)")
     unitscore = input()
     
     if re.match(r"^([1-9]?\d|100)$", unitscore):
         send(unitscore)
         gradecounter +=  1
     
+    elif unitscore.lower() == CALCULATE_MESSAGE:
+        if gradecounter<13:
+            print("at least 12 unit scores are required")
+        
+        else:
+            send(CALCULATE_MESSAGE)
+
+            break
     else:
         print("Invlaid input. Please try again!")
 
