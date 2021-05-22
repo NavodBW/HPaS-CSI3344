@@ -12,6 +12,23 @@ ADDR = (SERVER, PORT)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
+print("Welcome to Honours Pre-assessment System!")
+#user authentication
+valid_login = False
+
+while valid_login == False:
+    userName = input("\nPlease Enter your Username: ") 
+    password = input("Please Enter your Password: ")
+    
+  
+    if userName == 'user' and password == 'password':
+        print("Successfully logged in!")
+        valid_login = True
+        break #they are in, exit loop
+    else:
+        print("Invalid username And / Or Password! Please try again (Hint: user / password)")
+        exit
+        
 
 def send(msg):
     message = msg.encode(FORMAT)
@@ -24,8 +41,21 @@ def send(msg):
 
 
     
-person_ID = str(input("Please enter your person ID :"))
-send(person_ID)
+
+
+validPersonID = False
+
+while validPersonID == False:
+    person_ID = str(input("Please enter your 4 digit person ID :"))
+    if re.match(r"[0-9][0-9][0-9][0-9]$", person_ID):
+        validPersonID = True
+        send(person_ID)
+
+    else:
+        print("Invalid personID! It should be 4 digits!")
+        exit
+
+
 
 gradecounter = 1
 failcounter = 0

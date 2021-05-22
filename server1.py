@@ -69,8 +69,7 @@ def handle_client(conn, addr):
                 conn.send(("Course average: " + avg_score).encode(FORMAT))
                 conn.send(("Average of the best 12 marks: " + best_twelve_avg_score+"\n").encode(FORMAT))
 
-                """ evaluated = False
-                while evaluated == False: """
+                
                 if float(avg_score) > 69:
                     conn.send(("PersonID: "+personID + ", Course Average: " + avg_score +", QUALIFIED FOR HONOURS STUDY!").encode(FORMAT))
             
@@ -86,7 +85,7 @@ def handle_client(conn, addr):
                 else:
                     print("Error in evaluation")
 
-                """ evaluated = True """
+                
 
                 
 
@@ -97,7 +96,7 @@ def handle_client(conn, addr):
             print(f"[{addr}] {msg}")
             gradelist.append(msg)
             print(gradelist)
-            conn.send("Msg received".encode(FORMAT))
+            conn.send("\n Msg received".encode(FORMAT))
 
     conn.close()
         
