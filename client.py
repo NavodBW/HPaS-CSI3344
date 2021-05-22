@@ -1,5 +1,5 @@
 import socket
-
+import re
 
 HEADER = 64
 PORT = 10000
@@ -21,15 +21,27 @@ def send(msg):
     print(client.recv(2048).decode(FORMAT))
 
 
-gradecounter = 0
+    
+
+
+gradecounter = 1
 
 
 
 while gradecounter<31:
-    unitscore = input("Enter unit 1:")
-    send(unitscore)
+    print("Enter unit " + str(gradecounter) +" score:")
+    unitscore = input()
     
-    gradecounter +=  1
+    if re.match(r"^([1-9]?\d|100)$", unitscore):
+        send(unitscore)
+        gradecounter +=  1
+    
+    else:
+        print("Invlaid input. Please try again!")
+
+    
+    
+    
 
 
 
