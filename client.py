@@ -15,7 +15,7 @@ ADDR = (SERVER, PORT)
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 print("Welcome to Honours Pre-assessment System!")
-#user authentication
+""" #user authentication
 valid_login = False
 
 while valid_login == False:
@@ -30,7 +30,7 @@ while valid_login == False:
     else:
         print("Invalid username And / Or Password! Please try again (Hint: user / password)")
         exit
-        
+         """
 
 def send(msg):
     message = msg.encode(FORMAT)
@@ -52,25 +52,14 @@ while validPersonID == False:
     if re.match(r"[0-9][0-9][0-9][0-9]$", person_ID):
         validPersonID = True
         send(person_ID)
+        send(SEARCH_DB_MSG)
 
     else:
         print("Invalid personID! It should be 4 digits!")
         exit
 
-searchDB = False
 
-while searchDB == False:
-    searchPrompt = str(input("Press d if you want to search existing results in DB, otherwise press any other key to continue :"))
-    if searchPrompt.lower() == "d":
-        print("Results will be saved to DB")
-        send(SEARCH_DB_MSG)
-        searchDB == True
-        break
 
-    else:
-        print("Results won't be saved to DB")
-        searchDB == True
-        break
 
 saveToLog = False
 

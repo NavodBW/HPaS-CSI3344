@@ -17,14 +17,70 @@ SEARCH_DB_MSG = "d"
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
-gradelist = []
 
 
 
 def handle_client(conn, addr):
-    print(f"[NEW CONNECTION] {addr} connected.")
+    gradelist = []
+    
 
+    print(f"[NEW CONNECTION] {addr} connected.")
+    
     connected = True
+
+    def evaluator():
+        #getting the personID from the gradelist
+        personID = gradelist[0]
+        print(personID)
+        
+        #using slicing to remove personID from the gradelist
+        gradelist_without_personID = gradelist[1:]
+        print(gradelist_without_personID)
+
+        #converting the gradelist to an integer
+        int_gradelist = [int(n) for n in gradelist_without_personID if n not in ('d', 's')]
+
+        #calculating the course average
+        average_score = statistics.mean(int_gradelist)
+
+        avg_score =  str(round(average_score, 2))
+
+        print(avg_score)
+
+        #sorting the gradelist
+        int_gradelist.sort()
+
+        #printing best 12 marks
+        print("Best twelve Marks:" +str(int_gradelist[-12:]))
+
+        best_twelve_avg_list = int_gradelist[-12:]
+
+        #calculating the avg of best 12 scores
+        best_twelve_avg = statistics.mean(best_twelve_avg_list)
+
+        best_twelve_avg_score = str(round(best_twelve_avg, 2))
+        print(best_twelve_avg_score)
+        
+        print("Course average: " + avg_score +"\n")
+        print("Average of the best 12 marks: " + best_twelve_avg_score+"\n")
+
+        
+        if float(avg_score) > 69:
+            conn.send(("PersonID: "+personID + ", Course Average: " + avg_score +", QUALIFIED FOR HONOURS STUDY!").encode(FORMAT))
+    
+        elif float(avg_score) < 70 and float(best_twelve_avg_score) > 79:
+            conn.send(("PersonID: "+personID + ", Course Average: " + avg_score + ", Best 12 Avg: " +best_twelve_avg_score+ ", MAY HAVE GOOD CHANCE! Need further assessment!").encode(FORMAT))
+
+        elif float(avg_score) < 70 and 69 < float(best_twelve_avg_score) < 80:
+            conn.send(("PersonID: "+personID + ", Course Average: " + avg_score + ", Best 12 Avg: " +best_twelve_avg_score+ ", MAY HAVE A CHANCE! Must be carefully reassessed and get the coordinator’s special permission!!").encode(FORMAT))
+    
+        elif float(avg_score) < 70 and float(best_twelve_avg_score) < 70:
+            conn.send(("PersonID: "+personID + ", Course Average: " + avg_score + ", Best 12 Avg: " +best_twelve_avg_score+ ", DOES NOT QUALIFY FOR HONORS STUDY! Try Masters by course work.").encode(FORMAT))
+
+        else:
+            print("Error in evaluation")
+
+
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)
         if msg_length:
@@ -36,57 +92,10 @@ def handle_client(conn, addr):
             
 
             if msg == CALCULATE_MESSAGE or len(gradelist) ==30:
+                evaluator()
 
-                #getting the personID from the gradelist
-                personID = gradelist[0]
-                print(personID)
+                        
 
-                #using slicing to remove personID from the gradelist
-                gradelist_without_personID = gradelist[1:]
-                print(gradelist_without_personID)
-
-                #converting the gradelist to an integer
-                int_gradelist = [int(n) for n in gradelist_without_personID]
-
-                #calculating the course average
-                average_score = statistics.mean(int_gradelist)
-
-                avg_score =  str(round(average_score, 2))
-
-                print(avg_score)
-
-                #sorting the gradelist
-                int_gradelist.sort()
-
-                #printing best 12 marks
-                print("Best twelve Marks:" +str(int_gradelist[-12:]))
-
-                best_twelve_avg_list = int_gradelist[-12:]
-
-                #calculating the avg of best 12 scores
-                best_twelve_avg = statistics.mean(best_twelve_avg_list)
-
-                best_twelve_avg_score = str(round(best_twelve_avg, 2))
-                print(best_twelve_avg_score)
-                
-                conn.send(("Course average: " + avg_score).encode(FORMAT))
-                conn.send(("Average of the best 12 marks: " + best_twelve_avg_score+"\n").encode(FORMAT))
-
-                
-                if float(avg_score) > 69:
-                    conn.send(("PersonID: "+personID + ", Course Average: " + avg_score +", QUALIFIED FOR HONOURS STUDY!").encode(FORMAT))
-            
-                elif float(avg_score) < 70 and float(best_twelve_avg_score) > 79:
-                    conn.send(("PersonID: "+personID + ", Course Average: " + avg_score + ", Best 12 Avg: " +best_twelve_avg_score+ ", MAY HAVE GOOD CHANCE! Need further assessment!").encode(FORMAT))
-
-                elif float(avg_score) < 70 and 69 < float(best_twelve_avg_score) < 80:
-                    conn.send(("PersonID: "+personID + ", Course Average: " + avg_score + ", Best 12 Avg: " +best_twelve_avg_score+ ", MAY HAVE A CHANCE! Must be carefully reassessed and get the coordinator’s special permission!!").encode(FORMAT))
-            
-                elif float(avg_score) < 70 and float(best_twelve_avg_score) < 70:
-                    conn.send(("PersonID: "+personID + ", Course Average: " + avg_score + ", Best 12 Avg: " +best_twelve_avg_score+ ", DOES NOT QUALIFY FOR HONORS STUDY! Try Masters by course work.").encode(FORMAT))
-
-                else:
-                    print("Error in evaluation")
 
                 
 
@@ -98,17 +107,33 @@ def handle_client(conn, addr):
             if msg == SEARCH_DB_MSG:
                 personID = gradelist[0]
                 personIDstring = str(personID)
-                with open('StudentDB.csv', 'r', newline='') as myfile:
+                
+                
+                with open('StudentDB.csv', 'r') as myfile:
                     rd = csv.reader(myfile)
 
                     for row in rd:
                         if personIDstring == str(row[0]):
-                            conn.send((", ".join(row)).encode(FORMAT))
+                            
+                            
+                            gradelist = list(row)  
+                            print(gradelist)  
+                            
+                            
+                           
+                            evaluator() 
+                            conn.send((", ".join(row) + " [Match Found! FORMAT:(PersonID, Unit 1 Mark, Unit 2 Mark...etc.)]").encode(FORMAT))
+
+                            
+                            
+                            
                             break
 
                         else:
                             print("Not found in DB")
+                            conn.send("Not found in DB".encode(FORMAT))
                 
+                    
 
             elif msg == DISCONNECT_MESSAGE:
 
@@ -118,7 +143,7 @@ def handle_client(conn, addr):
                         # using csv.writer method from CSV package
                         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
                         try:
-                            gradelist.remove('1')
+                            gradelist.remove('c')
                             gradelist.remove('s')
                             gradelist.remove('d')
                         except ValueError:
@@ -128,7 +153,9 @@ def handle_client(conn, addr):
                 connected = False
 
             print(f"[{addr}] {msg}")
+            
             gradelist.append(msg)
+           
             print(gradelist)
             conn.send("\n Msg received".encode(FORMAT))
 
