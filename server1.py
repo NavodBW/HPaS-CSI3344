@@ -11,6 +11,7 @@ SERVER = "localhost"
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
+EVALUATE_EXST_MSG = "e"
 CALCULATE_MESSAGE = "c"
 SAVE_DB_MSG = "s"
 SEARCH_DB_MSG = "d"
@@ -38,7 +39,7 @@ def handle_client(conn, addr):
         print(gradelist_without_personID)
 
         #converting the gradelist to an integer
-        int_gradelist = [int(n) for n in gradelist_without_personID if n not in ('d', 's')]
+        int_gradelist = [int(n) for n in gradelist_without_personID if n not in ('d', 's', 'e')]
 
         #calculating the course average
         average_score = statistics.mean(int_gradelist)
@@ -93,6 +94,7 @@ def handle_client(conn, addr):
 
             if msg == CALCULATE_MESSAGE or len(gradelist) ==30:
                 evaluator()
+                
 
                         
 
@@ -104,6 +106,27 @@ def handle_client(conn, addr):
             if msg == SAVE_DB_MSG:
                 saveToLog = True     
 
+            if msg == EVALUATE_EXST_MSG:
+                personID = gradelist[0]
+                personIDstring = str(personID)
+                
+                
+                with open('StudentDB.csv', 'r') as myfile1:
+                    rd = csv.reader(myfile1)
+
+                    for line in rd:
+                        if personIDstring in line:
+                            
+                            
+                            gradelist = list(line)
+                            evaluator()   
+                            
+                            print(gradelist)  
+                            
+                            
+                           
+                            
+
             if msg == SEARCH_DB_MSG:
                 personID = gradelist[0]
                 personIDstring = str(personID)
@@ -112,26 +135,23 @@ def handle_client(conn, addr):
                 with open('StudentDB.csv', 'r') as myfile:
                     rd = csv.reader(myfile)
 
-                    for row in rd:
-                        if personIDstring == str(row[0]):
+                    for line in rd:
+                        if personIDstring in line:
                             
                             
-                            gradelist = list(row)  
-                            print(gradelist)  
+                            gradelist = list(line)
                             
-                            
-                           
-                            evaluator() 
-                            conn.send((", ".join(row) + " [Match Found! FORMAT:(PersonID, Unit 1 Mark, Unit 2 Mark...etc.)]").encode(FORMAT))
+                            evaluator()
+                            conn.send((", ".join(line) + " [Match Found! FORMAT:(PersonID, Unit 1 Mark, Unit 2 Mark...etc.)]").encode(FORMAT))
 
                             
                             
                             
-                            break
+                            
 
                         else:
                             print("Not found in DB")
-                            conn.send("Not found in DB".encode(FORMAT))
+                            """ conn.send("Not found in DB".encode(FORMAT)) """
                 
                     
 
@@ -146,6 +166,7 @@ def handle_client(conn, addr):
                             gradelist.remove('c')
                             gradelist.remove('s')
                             gradelist.remove('d')
+                            gradelist.remove('e')
                         except ValueError:
                             pass
                         wr.writerow([x if x != 's' or 'c' else ' ' for x in gradelist])

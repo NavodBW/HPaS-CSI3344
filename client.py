@@ -8,6 +8,7 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 CALCULATE_MESSAGE = "c"
 SAVE_DB_MSG = "s"
 SEARCH_DB_MSG = "d"
+EVALUATE_EXST_MSG = "e"
 SERVER = "localhost"
 ADDR = (SERVER, PORT)
 
@@ -54,6 +55,10 @@ while validPersonID == False:
         send(person_ID)
         send(SEARCH_DB_MSG)
 
+        evaluateResult = str(input("press e to view if there is an existing result, or press any other key to continue: "))
+        if evaluateResult.lower() == "e":
+            send(EVALUATE_EXST_MSG)
+            exit
     else:
         print("Invalid personID! It should be 4 digits!")
         exit
@@ -64,7 +69,7 @@ while validPersonID == False:
 saveToLog = False
 
 while saveToLog == False:
-    saveprompt = str(input("Press s if you want to save your results to Database, otherwise press any other key to continue :"))
+    saveprompt = str(input("Press x to escape, Press s if you want to save your results to Database, otherwise press any other key to continue :"))
 
     if saveprompt.lower() == "s":
         print("Results will be saved to DB")
@@ -72,6 +77,12 @@ while saveToLog == False:
         saveToLog == True
         break
     
+    if saveprompt.lower() == "x":
+        send(DISCONNECT_MESSAGE)
+        
+        exit()
+        
+
     else:
         print("Results won't be saved to DB")
         saveToLog == True
