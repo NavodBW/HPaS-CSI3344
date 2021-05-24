@@ -6,6 +6,8 @@ PORT = 10000
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 CALCULATE_MESSAGE = "c"
+SAVE_DB_MSG = "s"
+SEARCH_DB_MSG = "d"
 SERVER = "localhost"
 ADDR = (SERVER, PORT)
 
@@ -55,6 +57,37 @@ while validPersonID == False:
         print("Invalid personID! It should be 4 digits!")
         exit
 
+searchDB = False
+
+while searchDB == False:
+    searchPrompt = str(input("Press d if you want to search existing results in DB, otherwise press any other key to continue :"))
+    if searchPrompt.lower() == "d":
+        print("Results will be saved to DB")
+        send(SEARCH_DB_MSG)
+        searchDB == True
+        break
+
+    else:
+        print("Results won't be saved to DB")
+        searchDB == True
+        break
+
+saveToLog = False
+
+while saveToLog == False:
+    saveprompt = str(input("Press s if you want to save your results to Database, otherwise press any other key to continue :"))
+
+    if saveprompt.lower() == "s":
+        print("Results will be saved to DB")
+        send(SAVE_DB_MSG)
+        saveToLog == True
+        break
+    
+    else:
+        print("Results won't be saved to DB")
+        saveToLog == True
+        break
+        
 
 
 gradecounter = 1

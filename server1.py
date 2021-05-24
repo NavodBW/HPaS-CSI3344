@@ -3,6 +3,7 @@ import socket
 import statistics 
 import threading
 from statistics import mean
+import csv
 
 HEADER = 64
 PORT = 10000
@@ -11,6 +12,8 @@ ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 CALCULATE_MESSAGE = "c"
+SAVE_DB_MSG = "s"
+SEARCH_DB_MSG = "d"
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
@@ -87,10 +90,41 @@ def handle_client(conn, addr):
 
                 
 
+            saveToLog = False
+
+            if msg == SAVE_DB_MSG:
+                saveToLog = True     
+
+            if msg == SEARCH_DB_MSG:
+                personID = gradelist[0]
+                personIDstring = str(personID)
+                with open('StudentDB.csv', 'r', newline='') as myfile:
+                    rd = csv.reader(myfile)
+
+                    for row in rd:
+                        if personIDstring == str(row[0]):
+                            conn.send((", ".join(row)).encode(FORMAT))
+                            break
+
+                        else:
+                            print("Not found in DB")
                 
 
-
             elif msg == DISCONNECT_MESSAGE:
+
+                if saveToLog == False:
+                    with open('StudentDB.csv', 'a', newline='') as myfile:
+        
+                        # using csv.writer method from CSV package
+                        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+                        try:
+                            gradelist.remove('1')
+                            gradelist.remove('s')
+                            gradelist.remove('d')
+                        except ValueError:
+                            pass
+                        wr.writerow([x if x != 's' or 'c' else ' ' for x in gradelist])
+
                 connected = False
 
             print(f"[{addr}] {msg}")
