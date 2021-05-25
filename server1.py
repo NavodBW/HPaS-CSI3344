@@ -7,7 +7,7 @@ import csv
 
 HEADER = 64
 PORT = 10000
-PORT2 = 7000
+PORT2 = 10001
 SERVER = "localhost"
 ADDR = (SERVER, PORT)
 ADDR2 = (SERVER, PORT2)
@@ -18,11 +18,13 @@ CALCULATE_MESSAGE = "c"
 SAVE_DB_MSG = "s"
 SEARCH_DB_MSG = "d"
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDR)
+
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR2)
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(ADDR)
 
 def send(msg):
     message = msg.encode(FORMAT)
@@ -97,7 +99,8 @@ def handle_client(conn, addr):
         else:
             print("Error in evaluation")
 
-
+    
+    saveToLog = False
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)
         if msg_length:
@@ -117,7 +120,7 @@ def handle_client(conn, addr):
 
                 
 
-            saveToLog = False
+            
 
             if msg == SAVE_DB_MSG:
                 saveToLog = True     
@@ -135,6 +138,7 @@ def handle_client(conn, addr):
                             
                             
                             gradelist = list(line)
+                            print(gradelist)
                             evaluator()   
                             
                             print("Evaluated existing gradelist : ")
@@ -143,6 +147,14 @@ def handle_client(conn, addr):
                             print("sliced gradelist")
                             print(gradelist)
                             
+                        else:
+                            
+                            conn.send("No existing results found".encode(FORMAT))
+                            
+                                
+                                
+
+
                            
                             
 
@@ -159,7 +171,7 @@ def handle_client(conn, addr):
                             
                             
                             gradelist = list(line)
-                            
+                            print(gradelist)
                             evaluator()
                             conn.send((", ".join(line) + " [Match Found! FORMAT:(PersonID, Unit 1 Mark, Unit 2 Mark...etc.)]").encode(FORMAT))
                             gradelist = gradelist[:1]
@@ -178,7 +190,7 @@ def handle_client(conn, addr):
 
             elif msg == DISCONNECT_MESSAGE:
 
-                if saveToLog == False:
+                if saveToLog == True:
                     send(SAVE_DB_MSG)
                     """ lines = list()
                     with open('studentDB.csv', 'r', newline='') as readFile:
@@ -200,7 +212,7 @@ def handle_client(conn, addr):
 
                      
                  
-                connected = False
+                
 
             print(f"[{addr}] {msg}")
             
@@ -208,7 +220,7 @@ def handle_client(conn, addr):
             send(msg)
            
             print(gradelist)
-            conn.send("\n Msg received".encode(FORMAT))
+            conn.send("\n\nMsg received from server 1: ".encode(FORMAT))
 
     conn.close()
         

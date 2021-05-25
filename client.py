@@ -30,7 +30,7 @@ def authUser():
         if userName == 'user' and password == 'password':
             print("Successfully logged in!")
             valid_login = True
-            break #they are in, exit loop
+            break 
         else:
             print("Invalid username And / Or Password! Please try again (Hint: user / password)")
             exit
@@ -72,7 +72,7 @@ def savetoStudentDB():
     saveToLog = False
 
     while saveToLog == False:
-        saveprompt = str(input("Press x to escape, Press s if you want to save your results to Database, otherwise press any other key to continue :"))
+        saveprompt = str(input("Press x to escape, \nPress s if you want to save new results to Database, \notherwise press any other key to continue :"))
 
         if saveprompt.lower() == "s":
             print("Results will be saved to DB")

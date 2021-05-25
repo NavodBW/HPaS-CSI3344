@@ -6,7 +6,7 @@ from statistics import mean
 import csv
 
 HEADER = 64
-PORT2 = 7000
+PORT2 = 10001
 SERVER = 'localhost'
 ADDR2 = (SERVER, PORT2)
 FORMAT = 'utf-8'
@@ -16,10 +16,10 @@ SAVE_DB_MSG = "s"
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR2)
 
-def handle_client(conn, addr):
+def handle_client(conn, addr2):
     gradelist = []
     
-    print(f"[NEW CONNECTION] {addr} connected.")
+    print(f"[NEW CONNECTION] {addr2} connected.")
 
     connected = True
     while connected:
@@ -40,7 +40,7 @@ def handle_client(conn, addr):
                                 lines.remove(row)
 
                 with open('studentDB.csv', 'w', newline='') as writeFile:
-                    writer = csv.writer(writeFile)
+                    writer = csv.writer(writeFile, quoting=csv.QUOTE_ALL)
                     writer.writerows(lines)
 
                 with open('StudentDB.csv', 'a', newline='') as myfile:
@@ -50,8 +50,8 @@ def handle_client(conn, addr):
             if msg == DISCONNECT_MESSAGE:
                 connected = False
             gradelist.append(msg)
-            print(f"[{addr}] {msg}")
-            conn.send("Msg received".encode(FORMAT))
+            print(f"[{addr2}] {msg}")
+            conn.send("\nMsg received from server 2: ".encode(FORMAT))
 
     conn.close()
         
@@ -60,8 +60,8 @@ def start():
     server.listen()
     print(f"[LISTENING] Server is listening on {SERVER}")
     while True:
-        conn, addr = server.accept()
-        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        conn, addr2 = server.accept()
+        thread = threading.Thread(target=handle_client, args=(conn, addr2))
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
