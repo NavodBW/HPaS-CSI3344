@@ -7,8 +7,10 @@ import csv
 
 HEADER = 64
 PORT = 10000
+PORT2 = 7000
 SERVER = "localhost"
 ADDR = (SERVER, PORT)
+ADDR2 = (SERVER, PORT2)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 EVALUATE_EXST_MSG = "e"
@@ -18,6 +20,20 @@ SEARCH_DB_MSG = "d"
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(ADDR2)
+
+def send(msg):
+    message = msg.encode(FORMAT)
+    msg_length = len(message)
+    send_length = str(msg_length).encode(FORMAT)
+    send_length += b' ' * (HEADER - len(send_length))
+    client.send(send_length)
+    client.send(message)
+    print(client.recv(2048).decode(FORMAT))
+
+
 
 
 
@@ -163,7 +179,8 @@ def handle_client(conn, addr):
             elif msg == DISCONNECT_MESSAGE:
 
                 if saveToLog == False:
-                    lines = list()
+                    send(SAVE_DB_MSG)
+                    """ lines = list()
                     with open('studentDB.csv', 'r', newline='') as readFile:
                         reader = csv.reader(readFile)
                         for row in reader:
@@ -179,7 +196,7 @@ def handle_client(conn, addr):
                     with open('StudentDB.csv', 'a', newline='') as myfile:
                         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
                         wr.writerow([int(n) for n in gradelist if n not in ('d', 's', 'e', 'c')])
-
+ """
 
                      
                  
@@ -188,6 +205,7 @@ def handle_client(conn, addr):
             print(f"[{addr}] {msg}")
             
             gradelist.append(msg)
+            send(msg)
            
             print(gradelist)
             conn.send("\n Msg received".encode(FORMAT))
@@ -207,3 +225,5 @@ def start():
 
 print("[STARTING] server is starting...")
 start()
+
+
