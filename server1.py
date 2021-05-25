@@ -92,7 +92,7 @@ def handle_client(conn, addr):
         
             
 
-            if msg == CALCULATE_MESSAGE or len(gradelist) ==30:
+            if msg == CALCULATE_MESSAGE:
                 evaluator()
                 
 
@@ -121,8 +121,11 @@ def handle_client(conn, addr):
                             gradelist = list(line)
                             evaluator()   
                             
+                            print("Evaluated existing gradelist : ")
                             print(gradelist)  
-                            
+                            gradelist = gradelist[:1]
+                            print("sliced gradelist")
+                            print(gradelist)
                             
                            
                             
@@ -143,7 +146,9 @@ def handle_client(conn, addr):
                             
                             evaluator()
                             conn.send((", ".join(line) + " [Match Found! FORMAT:(PersonID, Unit 1 Mark, Unit 2 Mark...etc.)]").encode(FORMAT))
-
+                            gradelist = gradelist[:1]
+                            print("sliced gradelist from search DB :")
+                            print(gradelist)
                             
                             
                             
@@ -158,19 +163,26 @@ def handle_client(conn, addr):
             elif msg == DISCONNECT_MESSAGE:
 
                 if saveToLog == False:
-                    with open('StudentDB.csv', 'a', newline='') as myfile:
-        
-                        # using csv.writer method from CSV package
-                        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-                        try:
-                            gradelist.remove('c')
-                            gradelist.remove('s')
-                            gradelist.remove('d')
-                            gradelist.remove('e')
-                        except ValueError:
-                            pass
-                        wr.writerow([x if x != 's' or 'c' else ' ' for x in gradelist])
+                    lines = list()
+                    with open('studentDB.csv', 'r', newline='') as readFile:
+                        reader = csv.reader(readFile)
+                        for row in reader:
+                            lines.append(row)
+                            for field in row:
+                                if field == personID:
+                                    lines.remove(row)
 
+                    with open('studentDB.csv', 'w') as writeFile:
+                        writer = csv.writer(writeFile)
+                        writer.writerows(lines)
+
+                    with open('StudentDB.csv', 'a', newline='') as myfile:
+                        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+                        wr.writerow([int(n) for n in gradelist if n not in ('d', 's', 'e', 'c')])
+
+
+                     
+                 
                 connected = False
 
             print(f"[{addr}] {msg}")
