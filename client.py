@@ -185,7 +185,7 @@ def enterResults():
                     failcounter += 1
 
                     if failcounter > 5:
-                        print ("DOES NOT QUALIFY FOR HONORS STUDY! Try Masters by course work.")
+                        print ("Six or more failed units! DOES NOT QUALIFY FOR HONORS STUDY! Try Masters by course work.")
                         break
             else:
                 print("Only two fail grades are allowed. Your input was not sent to the server!")
