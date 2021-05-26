@@ -47,13 +47,12 @@ def handle_client(conn, addr2):
                     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
                     wr.writerow([int(n) for n in gradelist if n not in ('d', 's', 'e', 'c')])
 
-            if msg == DISCONNECT_MESSAGE:
-                connected = False
+      
             gradelist.append(msg)
             print(f"[{addr2}] {msg}")
             conn.send("\nMsg received from server 2: ".encode(FORMAT))
 
-    conn.close()
+    
         
 
 def start():

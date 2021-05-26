@@ -36,12 +36,12 @@ def send(msg):
     print(client.recv(2048).decode(FORMAT))
 
 
-
-
+noresultsCounter = 1
 
 def handle_client(conn, addr):
     gradelist = []
     
+
 
     print(f"[NEW CONNECTION] {addr} connected.")
     
@@ -57,7 +57,7 @@ def handle_client(conn, addr):
         print(gradelist_without_personID)
 
         #converting the gradelist to an integer
-        int_gradelist = [int(n) for n in gradelist_without_personID if n not in ('d', 's', 'e')]
+        int_gradelist = [int(n) for n in gradelist_without_personID if n not in ('d', 's', 'e', 'c')]
 
         #calculating the course average
         average_score = statistics.mean(int_gradelist)
@@ -126,6 +126,12 @@ def handle_client(conn, addr):
                 saveToLog = True     
 
             if msg == EVALUATE_EXST_MSG:
+                global noresultsCounter
+
+                
+
+                    
+
                 personID = gradelist[0]
                 personIDstring = str(personID)
                 
@@ -148,8 +154,9 @@ def handle_client(conn, addr):
                             print(gradelist)
                             
                         else:
-                            
-                            conn.send("No existing results found".encode(FORMAT))
+                            while noresultsCounter == 1:
+                                noresultsCounter += 1
+                                conn.send("No existing results found".encode(FORMAT))
                             
                                 
                                 
@@ -217,13 +224,15 @@ def handle_client(conn, addr):
             print(f"[{addr}] {msg}")
             
             gradelist.append(msg)
-            send(msg)
+
+            if msg != SAVE_DB_MSG:
+                send(msg)
            
             print(gradelist)
             conn.send("\n\nMsg received from server 1: ".encode(FORMAT))
 
     conn.close()
-        
+     
 
 def start():
     server.listen()

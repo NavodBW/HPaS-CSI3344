@@ -65,7 +65,7 @@ def validID():
         else:
             print("Invalid personID! It should be 4 digits!")
             exit
-
+validID()
 
 def savetoStudentDB():
 
@@ -90,11 +90,21 @@ def savetoStudentDB():
             print("Results won't be saved to DB")
             saveToLog == True
             break
-        
+
+savetoStudentDB()
+   
+countattempt = 0    
+unitcounter = 1
+gradecounter = 1
 
 def enterResults():
-    gradecounter = 1
+    global gradecounter
+    global unitcounter
+    
     failcounter = 0
+     
+     
+    
 
     def maxUnitsReached():
 
@@ -102,66 +112,109 @@ def enterResults():
             send(CALCULATE_MESSAGE)
         else:
             pass
-           
+    
+    
+      
+    def uptoThreeattempts():
+        global countattempt
+
+        if int(unitscore) > 49:
+            countattempt = 0
+
+
+
+        if int(unitscore) < 50:
+            
+            global unitcounter
+            global gradecounter
+            
+            
+            print("Did you attempt unit " + str(unitcounter) + " again?")
+            attempt_again = input("Press Y for Yes, any other key for No: ")
+
+            if attempt_again.lower() == "y":
+                countattempt += 1
+                """ if unitcounter > 1:
+                    unitcounter -= 1 """
+                print("please enter the unitscore again!")
+
+            else:
+                
+                gradecounter +=1
+                unitcounter += 1
+                pass
+
+            
+            
+            
+            
+        
+        else:
+            pass
+
+        #return countattempt
+
+            
+        
     while gradecounter<31:
-        print("Enter unit " + str(gradecounter) +" score: (or press 'c' to cancel)")
+        
+        print("Enter unit " + str(unitcounter) +" score: (or press 'c' to cancel)")
         unitscore = input()
         
+
+
         if re.match(r"^([1-9]?\d|100)$", unitscore):
-            send(unitscore)
-            gradecounter +=  1
-
-            maxUnitsReached() 
-
-            if int(unitscore)<50:
-                failcounter += 1
-
-                if failcounter > 5:
-                    print ("DOES NOT QUALIFY FOR HONORS STUDY! Try Masters by course work.")
-                    break
-
-                """ print("Did you attempt unit " + str(gradecounter) + " again?")
-                attempt_again = input("Press Y for Yes, N for No: ")
-
-                if attempt_again.lower() == "y":
-                    print("please enter the unitscore again!")
-                        
-
             
-                elif attempt_again.lower() == "n":
-                    continue
-
-                else:
-                    print("Invalid input. Only Y or N is allowed") """
-
-            
+            uptoThreeattempts()
         
+            if countattempt < 3:
 
                 
+                send(unitscore)
+                gradecounter +=  1
+                unitcounter += 1
+                
+                
 
-            
-        
+                maxUnitsReached() 
 
-        elif unitscore.lower() == CALCULATE_MESSAGE:
-            if gradecounter<13:
-                print("at least 12 unit scores are required")
+                if int(unitscore)<50:
+                    gradecounter -=1
+                    if unitcounter > 1:
+                        unitcounter -= 1
+                    failcounter += 1
+
+                    if failcounter > 5:
+                        print ("DOES NOT QUALIFY FOR HONORS STUDY! Try Masters by course work.")
+                        break
+
+                    
+                
             
+
+                    
+
+                
+            
+
+            elif unitscore.lower() == CALCULATE_MESSAGE:
+                if gradecounter<13:
+                    print("at least 12 unit scores are required")
+                
+                else:
+                    send(CALCULATE_MESSAGE)
+
+                    break
             else:
-                send(CALCULATE_MESSAGE)
+                print("Only two fail grades are allowed. Your input was not sent to the server!")
 
-                break
         else:
             print("Invlaid input. Please try again!")
-
-
     
     
 """ authUser() """
-validID()
-savetoStudentDB()
+
+
 enterResults()
-
-
-
-
 send(DISCONNECT_MESSAGE)
+
