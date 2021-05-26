@@ -187,19 +187,19 @@ def enterResults():
                     if failcounter > 5:
                         print ("DOES NOT QUALIFY FOR HONORS STUDY! Try Masters by course work.")
                         break
-
-                               
-            #check to see if there is at least 12 unit scores                
-            elif unitscore.lower() == CALCULATE_MESSAGE:
-                if gradecounter<13:
-                    print("at least 12 unit scores are required")
-                
-                else:
-                    send(CALCULATE_MESSAGE)
-
-                    break
             else:
                 print("Only two fail grades are allowed. Your input was not sent to the server!")
+                               
+            #check to see if there is at least 12 unit scores                
+        elif unitscore.lower() == CALCULATE_MESSAGE:
+            if gradecounter<13:
+                print("at least 12 unit scores are required")
+            
+            else:
+                send(CALCULATE_MESSAGE)
+
+                break
+            
 
         else:
             print("Invlaid input. Unit score must be 0-100!")
