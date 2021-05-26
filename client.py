@@ -46,7 +46,8 @@ def authUser():
         else:
             print("\nInvalid username And / Or Password! Please try again (Hint: user / password)")
             exit
-            
+
+authUser()           
 
 def send(msg):
     message = msg.encode(FORMAT)
@@ -204,7 +205,7 @@ def enterResults():
             print("Invlaid input. Unit score must be 0-100!")
     
     
-authUser()
+
 enterResults()
 send(DISCONNECT_MESSAGE)
 input("Press enter to exit")

@@ -13,6 +13,7 @@ FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 SAVE_DB_MSG = "s"
 
+#act as a server to server1.py
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR2)
 
@@ -28,6 +29,7 @@ def handle_client(conn, addr2):
             msg_length = int(msg_length)
             msg = conn.recv(msg_length).decode(FORMAT)
 
+            #function to save results to database
             if msg == SAVE_DB_MSG:
                 personID = gradelist[0]
                 lines = list()
@@ -47,17 +49,18 @@ def handle_client(conn, addr2):
                     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
                     wr.writerow([int(n) for n in gradelist if n not in ('d', 's', 'e', 'c')])
 
-      
+            if msg == DISCONNECT_MESSAGE:
+                connected = False
             gradelist.append(msg)
             print(f"[{addr2}] {msg}")
             conn.send("\nMsg received from server 2: ".encode(FORMAT))
 
-    
+    conn.close()
         
 
 def start():
     server.listen()
-    print(f"[LISTENING] Server is listening on {SERVER}")
+    print(f"[LISTENING] Server 2 is listening on {SERVER}")
     while True:
         conn, addr2 = server.accept()
         thread = threading.Thread(target=handle_client, args=(conn, addr2))
@@ -65,5 +68,5 @@ def start():
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
 
-print("[STARTING] server is starting...")
+print("[STARTING] server 2 is starting...")
 start()

@@ -5,6 +5,10 @@ import threading
 from statistics import mean
 import csv
 
+#CSI3344 A3
+#Navod Gunasekara - 10513666
+#Binara Malshan Hapugoda - 10457933 
+
 HEADER = 64
 PORT = 10000
 PORT2 = 10001
@@ -18,14 +22,15 @@ CALCULATE_MESSAGE = "c"
 SAVE_DB_MSG = "s"
 SEARCH_DB_MSG = "d"
 
-
-
+#server1 acts as a client to server2
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR2)
 
+#server1 acts as a server to client
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
+#function to send messages to server2
 def send(msg):
     message = msg.encode(FORMAT)
     msg_length = len(message)
@@ -36,17 +41,20 @@ def send(msg):
     print(client.recv(2048).decode(FORMAT))
 
 
+#Counter to prevent displaying messages more than once in some while loops
 noresultsCounter = 1
 
+#function to handle client.py
 def handle_client(conn, addr):
+
+    #list to store results
     gradelist = []
     
-
-
     print(f"[NEW CONNECTION] {addr} connected.")
     
     connected = True
 
+    #Honours evaluator function
     def evaluator():
         #getting the personID from the gradelist
         personID = gradelist[0]
@@ -99,8 +107,9 @@ def handle_client(conn, addr):
         else:
             print("Error in evaluation")
 
-    
+    #bool for save to DB
     saveToLog = False
+
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)
         if msg_length:
@@ -109,28 +118,16 @@ def handle_client(conn, addr):
             msg = conn.recv(msg_length).decode(FORMAT)
 
         
-            
-
+            #Call evaluator function if calculate message is recieved
             if msg == CALCULATE_MESSAGE:
                 evaluator()
-                
-
-                        
-
-
-                
-
-            
+                            
 
             if msg == SAVE_DB_MSG:
                 saveToLog = True     
 
             if msg == EVALUATE_EXST_MSG:
                 global noresultsCounter
-
-                
-
-                    
 
                 personID = gradelist[0]
                 personIDstring = str(personID)
@@ -141,8 +138,7 @@ def handle_client(conn, addr):
 
                     for line in rd:
                         if personIDstring in line:
-                            
-                            
+                                                      
                             gradelist = list(line)
                             print(gradelist)
                             evaluator()   
@@ -157,14 +153,9 @@ def handle_client(conn, addr):
                             while noresultsCounter == 1:
                                 noresultsCounter += 1
                                 conn.send("No existing results found".encode(FORMAT))
+                                                      
                             
-                                
-                                
-
-
-                           
-                            
-
+            #Searching the database for existing data
             if msg == SEARCH_DB_MSG:
                 personID = gradelist[0]
                 personIDstring = str(personID)
@@ -184,59 +175,38 @@ def handle_client(conn, addr):
                             gradelist = gradelist[:1]
                             print("sliced gradelist from search DB :")
                             print(gradelist)
-                            
-                            
-                            
-                            
+                                                       
 
                         else:
                             print("Not found in DB")
-                            """ conn.send("Not found in DB".encode(FORMAT)) """
-                
-                    
-
+                            
+                                   
             elif msg == DISCONNECT_MESSAGE:
 
+                #asking server2 to save to database if that option was selected by the client
                 if saveToLog == True:
                     send(SAVE_DB_MSG)
-                    """ lines = list()
-                    with open('studentDB.csv', 'r', newline='') as readFile:
-                        reader = csv.reader(readFile)
-                        for row in reader:
-                            lines.append(row)
-                            for field in row:
-                                if field == personID:
-                                    lines.remove(row)
-
-                    with open('studentDB.csv', 'w') as writeFile:
-                        writer = csv.writer(writeFile)
-                        writer.writerows(lines)
-
-                    with open('StudentDB.csv', 'a', newline='') as myfile:
-                        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-                        wr.writerow([int(n) for n in gradelist if n not in ('d', 's', 'e', 'c')])
- """
-
-                     
-                 
+                    
+                conn.close()
                 
 
             print(f"[{addr}] {msg}")
             
             gradelist.append(msg)
 
-            if msg != SAVE_DB_MSG:
+            #removing saveDB message from client to prevent always saving to DB
+            if msg != SAVE_DB_MSG :
                 send(msg)
            
             print(gradelist)
-            conn.send("\n\nMsg received from server 1: ".encode(FORMAT))
+            conn.send("\nMsg received from server 1: ".encode(FORMAT))
 
     conn.close()
      
 
 def start():
     server.listen()
-    print(f"[LISTENING] Server is listening on {SERVER}")
+    print(f"[LISTENING] Server 1 is listening on {SERVER}")
     while True:
         conn, addr = server.accept()
         thread = threading.Thread(target=handle_client, args=(conn, addr))
@@ -244,7 +214,7 @@ def start():
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
 
-print("[STARTING] server is starting...")
+print("[STARTING] server 1 is starting...")
 start()
 
 
